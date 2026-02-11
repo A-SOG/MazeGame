@@ -39,16 +39,16 @@ namespace engine::resource {
     }
 
     // --- 音效管理 ---
-    Mix_Chunk* AudioManager::loadSound(const std::string& file_path) {
+    Mix_Chunk* AudioManager::loadSound(std::string_view file_path) {
         // 首先检查缓存
-        auto it = sounds_.find(file_path);
+        auto it = sounds_.find(std::string(file_path));
         if (it != sounds_.end()) {
             return it->second.get();
         }
 
         // 加载音效块
         spdlog::debug("加载音效: {}", file_path);
-        Mix_Chunk* raw_chunk = Mix_LoadWAV(file_path.c_str());
+        Mix_Chunk* raw_chunk = Mix_LoadWAV(file_path.data());
         if (!raw_chunk) {
             spdlog::error("加载音效失败: '{}': {}", file_path, SDL_GetError());
             return nullptr;
@@ -60,8 +60,8 @@ namespace engine::resource {
         return raw_chunk;
     }
 
-    Mix_Chunk* AudioManager::getSound(const std::string& file_path) {
-        auto it = sounds_.find(file_path);
+    Mix_Chunk* AudioManager::getSound(std::string_view file_path) {
+        auto it = sounds_.find(std::string(file_path));
         if (it != sounds_.end()) {
             return it->second.get();
         }
@@ -69,8 +69,8 @@ namespace engine::resource {
         return loadSound(file_path);
     }
 
-    void AudioManager::unloadSound(const std::string& file_path) {
-        auto it = sounds_.find(file_path);
+    void AudioManager::unloadSound(std::string_view file_path) {
+        auto it = sounds_.find(std::string(file_path));
         if (it != sounds_.end()) {
             spdlog::debug("卸载音效: {}", file_path);
             sounds_.erase(it);      // unique_ptr处理Mix_FreeChunk
@@ -88,16 +88,16 @@ namespace engine::resource {
     }
 
     // --- 音乐管理 ---
-    Mix_Music* AudioManager::loadMusic(const std::string& file_path) {
+    Mix_Music* AudioManager::loadMusic(std::string_view file_path) {
         // 首先检查缓存
-        auto it = music_.find(file_path);
+        auto it = music_.find(std::string(file_path));
         if (it != music_.end()) {
             return it->second.get();
         }
 
         // 加载音乐
         spdlog::debug("加载音乐: {}", file_path);
-        Mix_Music* raw_music = Mix_LoadMUS(file_path.c_str());
+        Mix_Music* raw_music = Mix_LoadMUS(file_path.data());
         if (!raw_music) {
             spdlog::error("加载音乐失败: '{}': {}", file_path, SDL_GetError());
             return nullptr;
@@ -109,8 +109,8 @@ namespace engine::resource {
         return raw_music;
     }
 
-    Mix_Music* AudioManager::getMusic(const std::string& file_path) {
-        auto it = music_.find(file_path);
+    Mix_Music* AudioManager::getMusic(std::string_view file_path) {
+        auto it = music_.find(std::string(file_path));
         if (it != music_.end()) {
             return it->second.get();
         }
@@ -118,8 +118,8 @@ namespace engine::resource {
         return loadMusic(file_path);
     }
 
-    void AudioManager::unloadMusic(const std::string& file_path) {
-        auto it = music_.find(file_path);
+    void AudioManager::unloadMusic(std::string_view file_path) {
+        auto it = music_.find(std::string(file_path));
         if (it != music_.end()) {
             spdlog::debug("卸载音乐: {}", file_path);
             music_.erase(it); // unique_ptr处理Mix_FreeMusic

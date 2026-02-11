@@ -1,6 +1,8 @@
 ﻿#include "game_app.h"
 #include "time.h"
 #include"../resource/resource_manager.h"
+#include"../render/renderer.h"
+#include"../render/camera.h"
 #include <SDL3/SDL.h>
 #include <spdlog/spdlog.h>
 
@@ -41,6 +43,8 @@ namespace engine::core {
         if (!initSDL())  return false;
         if (!initTime()) return false;
         if (!initResourceManager()) return false;
+        if (!initRenderer()) return false;
+        if (!initCamera()) return false;
         // 测试资源管理器
         testResourceManager();
         is_running_ = true;
@@ -57,12 +61,17 @@ namespace engine::core {
         }
     }
 
-    void GameApp::update(float /* delta_time */) {
-        // 游戏逻辑更新，暂时为空
+    void GameApp::update(float  delta_time ) {
+        // 游戏逻辑更新
+        testCamera();
     }
 
     void GameApp::render() {
-        // 渲染代码，暂时为空
+      
+        renderer_->clearScreen();// 1. 清除屏幕
+        testRenderer();  // 2. 具体渲染代码
+
+        renderer_->present();// 3. 更新屏幕显示
     }
 
     void GameApp::close() {
@@ -98,6 +107,10 @@ namespace engine::core {
             spdlog::error("无法创建渲染器! SDL错误: {}", SDL_GetError());
             return false;
         }
+
+
+        // 设置逻辑分辨率
+        SDL_SetRenderLogicalPresentation(sdl_renderer_, 640, 360, SDL_LOGICAL_PRESENTATION_LETTERBOX);
         spdlog::trace("SDL 初始化成功。");
         return true;
     }
@@ -124,6 +137,32 @@ namespace engine::core {
         spdlog::trace("资源管理器初始化成功。");
         return true;
     }
+    bool GameApp::initRenderer()
+    {
+        try {
+            renderer_ = std::make_unique<engine::render::Renderer>(sdl_renderer_, resource_manager_.get());
+       }
+        catch(const std::exception&e){
+            spdlog::error("初始化渲染器失败: {}", e.what());
+            return false;
+        }
+
+        spdlog::trace("渲染器初始化成功。");
+
+        return true;
+    }
+    bool GameApp::initCamera()
+    {
+        try {
+            camera_ = std::make_unique<engine::render::Camera>(glm::vec2(640, 360));
+        }
+        catch (const std::exception& e) {
+            spdlog::error("初始化相机失败: {}", e.what());
+            return false;
+        }
+        spdlog::trace("相机初始化成功。");
+        return true;
+    }
     void GameApp::testResourceManager()
     {
         resource_manager_->getTexture("assets/Character/Status.png");
@@ -132,5 +171,27 @@ namespace engine::core {
         resource_manager_->unloadTexture("assets/Character/Status.png");
         resource_manager_->unloadFont("assets/fonts/Marker Felt.ttf", 16);
         resource_manager_->unloadSound("assets/audio/bkMusic.mp3");
+    }
+    void GameApp::testRenderer()
+    {
+        engine::render::Sprite sprite_world("assets/Knight.png");
+        engine::render::Sprite sprite_ui("assets/Character/Status.png");
+        engine::render::Sprite sprite_parallax("assets/Scene/6.png");
+
+        static float rotation = 0.0f;
+        rotation += 0.1f;
+
+        // 注意渲染顺序
+        renderer_->drawParallax(*camera_, sprite_parallax, glm::vec2(100, 100), glm::vec2(0.5f, 0.5f), glm::bvec2(true, false));
+        renderer_->drawSprite(*camera_, sprite_world, glm::vec2(200, 200), glm::vec2(1.0f, 1.0f), rotation);
+        renderer_->drawUISprite(sprite_ui, glm::vec2(100, 100));
+    }
+    void GameApp::testCamera()
+    {
+        auto key_state = SDL_GetKeyboardState(nullptr);
+        if (key_state[SDL_SCANCODE_UP]) camera_->move(glm::vec2(0, -1));
+        if (key_state[SDL_SCANCODE_DOWN]) camera_->move(glm::vec2(0, 1));
+        if (key_state[SDL_SCANCODE_LEFT]) camera_->move(glm::vec2(-1, 0));
+        if (key_state[SDL_SCANCODE_RIGHT]) camera_->move(glm::vec2(1, 0));
     }
 } // namespace engine::core

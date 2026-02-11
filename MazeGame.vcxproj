@@ -142,17 +142,23 @@
     <Text Include="vender\SDL3\share\licenses\SDL3_mixer\LICENSE.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\engine\render\camera.cpp" />
+    <ClCompile Include="src\engine\render\renderer.cpp" />
     <ClCompile Include="src\engine\resource\audio_manager.cpp" />
     <ClCompile Include="src\engine\core\game_app.cpp" />
     <ClCompile Include="src\engine\core\time.cpp" />
     <ClCompile Include="src\engine\resource\font_manager.cpp" />
     <ClCompile Include="src\engine\resource\resource_manager.cpp" />
     <ClCompile Include="src\engine\resource\texture_manager.cpp" />
+    <ClCompile Include="src\engine\utils\math.h" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\engine\core\game_app.h" />
     <ClInclude Include="src\engine\core\time.h" />
+    <ClInclude Include="src\engine\render\camera.h" />
+    <ClInclude Include="src\engine\render\renderer.h" />
+    <ClInclude Include="src\engine\render\sprite.h" />
     <ClInclude Include="src\engine\resource\audio_manager.h" />
     <ClInclude Include="src\engine\resource\font_manager.h" />
     <ClInclude Include="src\engine\resource\resource_manager.h" />
