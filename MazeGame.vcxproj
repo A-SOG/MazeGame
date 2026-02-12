@@ -142,6 +142,7 @@
     <Text Include="vender\SDL3\share\licenses\SDL3_mixer\LICENSE.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\engine\core\config.cpp" />
     <ClCompile Include="src\engine\render\camera.cpp" />
     <ClCompile Include="src\engine\render\renderer.cpp" />
     <ClCompile Include="src\engine\resource\audio_manager.cpp" />
@@ -154,6 +155,7 @@
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\engine\core\config.h" />
     <ClInclude Include="src\engine\core\game_app.h" />
     <ClInclude Include="src\engine\core\time.h" />
     <ClInclude Include="src\engine\render\camera.h" />

@@ -28,7 +28,7 @@ namespace engine::render {
          * @param limit_bounds 限制相机的移动范围
          */
         Camera(glm::vec2 viewport_size,
-            glm::vec2 position = glm::vec2(0.0f, 0.0f),
+            glm::vec2 position = glm::vec2(0.0f, 500.0f),
             std::optional<engine::utils::Rect> limit_bounds = std::nullopt);
 
         void update(float delta_time);                                          ///< @brief 更新相机位置
