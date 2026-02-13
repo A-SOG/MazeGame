@@ -6,6 +6,7 @@
 #include "config.h"
 #include <SDL3/SDL.h>
 #include <spdlog/spdlog.h>
+#include "../input/input_manager.h"
 
 namespace engine::core {
 
@@ -26,6 +27,7 @@ namespace engine::core {
         while (is_running_) {
             time_->update();
             float delta_time = time_->getDeltaTime();
+            input_manager_->update();
 
             handleEvents();
             update(delta_time);
@@ -45,6 +47,8 @@ namespace engine::core {
         if (!initResourceManager()) return false;
         if (!initRenderer()) return false;
         if (!initCamera()) return false;
+        if (!initInputManager())return false;
+
         // 测试资源管理器
         testResourceManager();
         is_running_ = true;
@@ -53,12 +57,12 @@ namespace engine::core {
     }
 
     void GameApp::handleEvents() {
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_EVENT_QUIT) {
-                is_running_ = false;
-            }
-        }
+        if (input_manager_->shouldQuit()) {
+            spdlog::trace("GameApp 收到来自 InputManager 的退出请求。");
+            is_running_ = false;
+            return;
+      }
+        testInputManager();
     }
 
     void GameApp::update(float  delta_time ) {
@@ -179,6 +183,19 @@ namespace engine::core {
         spdlog::trace("相机初始化成功。");
         return true;
     }
+    bool GameApp::initInputManager()
+    {
+        try {
+            input_manager_ = std::make_unique<engine::input::InputManager>(sdl_renderer_, config_.get());
+        }
+
+        catch (const std::exception& e) {
+            spdlog::error("初始化输入管理器失败: {}", e.what());
+            return false;
+        }
+        spdlog::trace("输入管理器初始化成功。");
+        return true;
+    }
     void GameApp::testResourceManager()
     {
         resource_manager_->getTexture("assets/Character/Status.png");
@@ -209,5 +226,34 @@ namespace engine::core {
         if (key_state[SDL_SCANCODE_DOWN]) camera_->move(glm::vec2(0, 1));
         if (key_state[SDL_SCANCODE_LEFT]) camera_->move(glm::vec2(-1, 0));
         if (key_state[SDL_SCANCODE_RIGHT]) camera_->move(glm::vec2(1, 0));
+        if(key_state[SDL_SCANCODE_W])camera_->move(glm::vec2(0, -1));
+        if (key_state[SDL_SCANCODE_S]) camera_->move(glm::vec2(0, 1));
+        if (key_state[SDL_SCANCODE_A]) camera_->move(glm::vec2(-1, 0));
+        if (key_state[SDL_SCANCODE_D]) camera_->move(glm::vec2(1, 0));
+    }
+    void GameApp::testInputManager()
+    {
+
+        std::vector<std::string> actions = {
+                    "move_up",
+                    "move_down",
+                    "move_left",
+                    "move_right",
+                    "attack",
+                    "MouseLeftClick",
+                    "MouseRightClick"
+        };
+
+        for (const auto& action : actions) {
+            if (input_manager_->isActionPressed(action)) {
+                spdlog::info(" {} 按下 ", action);
+            }
+            if (input_manager_->isActionReleased(action)) {
+                spdlog::info(" {} 抬起 ", action);
+            }
+            if (input_manager_->isActionDown(action)) {
+                spdlog::info(" {} 按下中 ", action);
+            }
+        }
     }
 } // namespace engine::core

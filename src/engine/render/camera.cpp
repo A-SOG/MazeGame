@@ -109,6 +109,11 @@ namespace engine::render {
         return viewport_size_;
     }
 
+    const glm::vec2& Camera::getPosition() const
+    {
+        return position_;
+    }
+
     std::optional<engine::utils::Rect> Camera::getLimitBounds() const {
         return limit_bounds_;
     }
